@@ -57,11 +57,23 @@ resource:
 
 jobs:
   - name: validate-tfplan
-    max_in_flight: 1
     build_logs_to_retain: 10
     plan:
       - do:
           - get: tfplan
+
+          - task: hello-world
+            config:
+              platform: linux
+              image_resource:
+                type: docker-image
+                source: { repository: busybox }
+              run:
+                path: /bin/sh
+                args:
+                  - -ec
+                  - |
+                    echo "Hello World!"
 
           - put: infrapolicy
             params:
