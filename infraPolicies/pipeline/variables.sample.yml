@@ -37,13 +37,13 @@ aws_default_region: eu-west-1
 #+ AWS S3 bucket name to store terraform remote state file.
 terraform_storage_bucket_name: ($ organization_canonical $)-terraform-remote-state
 
-#. env_s3 (required): test-env
-#+ Name of the project's environment to use for the validation of infrapolicies.
-env_s3: test-env
+#. tfplan_project (required): test-project
+#+ Name of the folder where tfplan are stored.
+tfplan_folder: test-project
 
-#. project_s3 (required): test-project
-#+ Name of the project to use for the validation of infrapolicies.
-project_s3: test-project
+#. tfplan_file (required): test_stack_env.json
+#+ Name of the project's tfplan to use in json format.
+tfplan_file: test_stack_env.json
 
 #
 # Repos
@@ -65,9 +65,9 @@ config_git_private_key: ((ssh_config.ssh_key))
 # Concourse resource versions
 #
 
-#. terraform_version (required): '1.0.6'
-#+ terraform version to use for the terraform resource.
-terraform_version: "1.0.6"
+# #. terraform_version (required): '1.0.6'
+# #+ terraform version to use for the terraform resource.
+# terraform_version: "1.0.6"
 
 #. cycloid_resource_version (required): 'latest'
 #+ cycloid resource version used to execute the infrapolicies validation.

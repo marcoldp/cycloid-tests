@@ -28,19 +28,19 @@ infrapolicies:
         type: string
         default: ($ organization_canonical $)-terraform-remote-state
         required: true
-      - name: "Test project's env"
-        description: "Name of the project's environment to use for the validation of infrapolicies."
-        key: env_s3
+      - name: "Tfplan folder"
+        description: "Name of the folder where tfplan is stored."
+        key: tfplan_folder
         widget: simple_text
         type: string
-        default: test-env
+        default: "tfplan-infrapolicy"
         required: true
-      - name: "Test project"
-        description: "Name of the project to use for the validation of infrapolicies."
+      - name: "Tfplan file name"
+        description: "Name of the project's tfplan to use in json format."
         key: project_s3
         widget: simple_text
         type: string
-        default: test-project
+        default: "example_project.json"
         required: true
 
     Repos:
@@ -69,13 +69,6 @@ infrapolicies:
         required: true
 
     Concourse:
-      - name: "Terraform resource version"
-        key: terraform_version
-        type: string
-        widget: simple_text
-        description: "Terraform version to use for the terraform resource."
-        default: "1.0.6"
-        required: true
       - name: "Cycloid resource version"
         key: cycloid_resource_version
         type: string
@@ -83,3 +76,4 @@ infrapolicies:
         description: "cycloid resource version used to execute the infrapolicies validation."
         default: "latest"
         required: true
+        
