@@ -1,32 +1,95 @@
-package cycloid.tf_aws_ec2
+# This package specifies rules to be applied into the ec2
+package cycloid_tf.aws.tags
 
-resource_type = "aws_instance"
+import tags_ok
+
+# imports -> by default should be tfplan to check if possible to add others
+import input.tfplan.aws_instance as aws_instance
+import input.tfplan.aws_security_group as aws_security_group
+
+# resources to be considered in this rule, can be a list as well
+resource_type = { "aws_instance", "aws_security_group" }
+
+# validate only uses in prod and stage 
+
+# check rules iso validate into different for providers best practice iso
+# 
 
 
-ensure ec2 no public IP
-VPC security group rules should not permit ingress from '0.0.0.0/0' except to ports 80 and 443
-VPC security group rules should not permit ingress from '0.0.0.0/0' to port 22 (SSH)
+######
+# ALL
+######
 
+# Check if tag corresponds to the cycloid standard : 
+# not possible to check organisation -> check done on the be side -> what if client wants to do it?
+# Considering default
+  # standard_tags = {
+  #   "cycloid.io" = "true"
+  #   env          = var.env
+  #   project      = var.project
+  #   client       = var.customer
+  #   organization = var.customer
+  # }
 
-
-
-__rego__metadoc__ := {
-  "custom": {
-    "controls": {},
-    "severity": "Medium"
-  },
-  "description": "EC2 instances should not have a public IP association (IPv4). Publicly accessible EC2 instances are reachable over the internet even if you have protections such as NACLs or security groups. If these protections are accidentally removed your instances may be vulnerable to attack.",
-  "id": "FG_R00271",
-  "title": "EC2 instances should not have a public IP association (IPv4)"
+tags_ok(resource) {
+  resource.tags["cycloid.io"] == "true"
+  resource.tags["env"] == input.environment_canonical
+  resource.tags["project"] == input.project_canonical
+  # resouce.tags["client"] ==
+  # resouce.tags["organization"] ==
 }
 
-allow {
+deny[reason]{
+  tags_ok(resource_type[index])
+  reason := sprintf("not founf the default tags required by the resource %q", [resource.address])
+}
 
+######
+# EC2
+######
 
+# EC2 instances should not have a public IP association (IPv4)
+default deny = false
+
+deny {
+  tfplan.associate_public_ip_address == true
+  tplan.public_ip != ""
 }
 
 
-deny{
+######
+# security_group
+######
 
+# VPC security group should not allow ingress from 0.0.0.0/0 except in ports 80 and 443
+
+
+# VPC security group should not allow  certain address
+
+######
+# Policy - tags
+######
+
+
+
+
+# check instance tags
+
+prod_servers[name] {
+    site := sites[_]
+    site.name == "prod"
+    name := site.servers[_].name
+}
+
+apps_in_prod[name] {
+    app := apps[_]
+    server := app.servers[_]
+    prod_servers[server]
+    name := app.name
+}
+
+apps_not_in_prod[name] {
+    name := apps[_].name
+    not apps_in_prod[name]
 }
 

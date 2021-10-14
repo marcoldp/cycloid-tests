@@ -25,7 +25,7 @@ resources:
       api_key: ((api_key))
       #api_url:
       env: ((env))
-      org: ((org))
+      org: ((organization))
       project: ((project))
 
       # - name: tfplan
@@ -52,7 +52,7 @@ resources:
       bucket: ((terraform_storage_bucket_name))
       versioned_file: ((tfplan_folder))/((tfplan_file))
       access_key_id: ((aws_access_key))
-      secret_access_key: ((aws_access_key))
+      secret_access_key: ((aws_secret_key))
       region_name: ((aws_default_region))
 
 jobs:

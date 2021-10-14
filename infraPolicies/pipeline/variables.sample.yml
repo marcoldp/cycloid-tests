@@ -72,3 +72,7 @@ config_git_private_key: ((ssh_config.ssh_key))
 #. cycloid_resource_version (required): 'latest'
 #+ cycloid resource version used to execute the infrapolicies validation.
 cycloid_resource_version: "latest"
+
+#. api_key (required): ((custom_api-key-infrapolicies-test.key))
+#+ Name of the API key to use to to authenticate on Cycloid API.
+api_key: ((custom_api-key-infrapolicies-test.key))

@@ -76,4 +76,10 @@ infrapolicies:
         description: "cycloid resource version used to execute the infrapolicies validation."
         default: "latest"
         required: true
+      - name: "API Key"
+        description: "Name of the API key to use to to authenticate on Cycloid API."
+        key: api_key
+        widget: cy_cred
+        type: string
+        default: "((custom_api-key-infrapolicies-test.key))"
         
