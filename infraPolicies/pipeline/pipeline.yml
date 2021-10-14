@@ -17,7 +17,7 @@ resource_types:
   #     repository: ljfranklin/terraform-resource
   #     tag: ((terraform_version))
 
-resource:
+resources:
   - name: infrapolicy
     type: cycloid-resource
     source:
@@ -28,23 +28,23 @@ resource:
       org: ((org))
       project: ((project))
 
-  # - name: tfplan
-  #   type: terraform
-  #   icon: terraform
-  #   source:
-  #     env_name: ((env_s3))
-  #     backend_type: s3
-  #     backend_config:
-  #       bucket: ((terraform_storage_bucket_name))
-  #       key: ((project_s3))-((env_s3)).tfstate
-  #       workspace_key_prefix: ((project_s3))
-  #       region: ((aws_default_region))
-  #       access_key: ((aws_access_key))
-  #       secret_key: ((aws_access_key))
-  #     env:
-  #       AWS_ACCESS_KEY_ID: ((aws_access_key))
-  #       AWS_DEFAULT_REGION: ((aws_default_region))
-  #       AWS_SECRET_ACCESS_KEY: ((aws_secret_key))
+      # - name: tfplan
+      #   type: terraform
+      #   icon: terraform
+      #   source:
+      #     env_name: ((env_s3))
+      #     backend_type: s3
+      #     backend_config:
+      #       bucket: ((terraform_storage_bucket_name))
+      #       key: ((project_s3))-((env_s3)).tfstate
+      #       workspace_key_prefix: ((project_s3))
+      #       region: ((aws_default_region))
+      #       access_key: ((aws_access_key))
+      #       secret_key: ((aws_access_key))
+      #     env:
+      #       AWS_ACCESS_KEY_ID: ((aws_access_key))
+      #       AWS_DEFAULT_REGION: ((aws_default_region))
+      #       AWS_SECRET_ACCESS_KEY: ((aws_secret_key))
 
   - name: tfplan
     type: s3
@@ -61,19 +61,6 @@ jobs:
     plan:
       - do:
           - get: tfplan
-
-          - task: hello-world
-            config:
-              platform: linux
-              image_resource:
-                type: docker-image
-                source: { repository: busybox }
-              run:
-                path: /bin/sh
-                args:
-                  - -ec
-                  - |
-                    echo "Hello World!"
 
           - put: infrapolicy
             params:
