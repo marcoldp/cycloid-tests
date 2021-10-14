@@ -37,7 +37,7 @@ infrapolicies:
         required: true
       - name: "Tfplan file name"
         description: "Name of the project's tfplan to use in json format."
-        key: project_s3
+        key: tfplan_file
         widget: simple_text
         type: string
         default: "example_project.json"
