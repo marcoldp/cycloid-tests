@@ -62,10 +62,10 @@ jobs:
     plan:
       - do:
           - get: tfplan
-            get_params:
+            params:
               output_planfile: true
 
-          - put: check
+          - put: infrapolicy
             params:
               tfplan_path: tfplan/plan.json
 # - name: validate-tfapply
