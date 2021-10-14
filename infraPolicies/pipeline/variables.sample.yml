@@ -1,0 +1,74 @@
+#
+# Cycloid default variables that shouldn't be changed except if needed
+#
+
+#. env (required): ($ environment $)
+#+ Name of the project's environment.
+env: ($ environment $)
+
+#. project (required): ($ project $)
+#+ Name of the project.
+project: ($ project $)
+
+#. customer (required): ($ organization_canonical $)
+#+ Name of the Cycloid Organization, used as customer variable name.
+customer: ($ organization_canonical $)
+organization: ($ organization_canonical $)
+
+#
+# S3 bucket
+#
+
+# Amazon access to use to get tfplan and tfstate from S3 bucket
+
+#. aws_access_key (required): ((aws.access_key))
+#+ Amazon AWS access key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+aws_access_key: ((aws.access_key))
+
+#. aws_secret_key (required): ((aws.secret_key))
+#+ Amazon AWS secret key for Terraform. See value format [here](https://docs.cycloid.io/advanced-guide/integrate-and-use-cycloid-credentials-manager.html#vault-in-the-pipeline)
+aws_secret_key: ((aws.secret_key))
+
+#. aws_default_region (required): eu-west-1
+#+ Amazon AWS region to use for Terraform.
+aws_default_region: eu-west-1
+
+#. terraform_storage_bucket_name (required): ($ organization_canonical $)-terraform-remote-state
+#+ AWS S3 bucket name to store terraform remote state file.
+terraform_storage_bucket_name: ($ organization_canonical $)-terraform-remote-state
+
+#. env_s3 (required): test-env
+#+ Name of the project's environment to use for the validation of infrapolicies.
+env_s3: test-env
+
+#. project_s3 (required): test-project
+#+ Name of the project to use for the validation of infrapolicies.
+project_s3: test-project
+
+#
+# Repos
+#
+
+#. config_git_repository (required): git@github.com:MyUser/config.git
+#+ Git repository URL containing the config of the stack.
+config_git_repository: git@github.com:MyUser/config.git
+
+#. config_git_branch (required): master
+#+ Branch of the config Git repository.
+config_git_branch: master
+
+#. config_git_private_key (required): ((ssh_config.ssh_key))
+#+ SSH key pair to fetch the config Git repository.
+config_git_private_key: ((ssh_config.ssh_key))
+
+#
+# Concourse resource versions
+#
+
+#. terraform_version (required): '1.0.6'
+#+ terraform version to use for the terraform resource.
+terraform_version: "1.0.6"
+
+#. cycloid_resource_version (required): 'latest'
+#+ cycloid resource version used to execute the infrapolicies validation.
+cycloid_resource_version: "latest"

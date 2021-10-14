@@ -1,0 +1,28 @@
+# Configuration of Cycloid stack
+---
+version: "2"
+name: "marco-testing"
+canonical: "marco-tests"
+status: "private"
+description: |
+  This stack allows to performs different tests.
+keywords:
+  - "infrapolicies"
+  - "tests"
+author: "Cycloid"
+technologies:
+  - technology: AWS
+    version: n/a
+config:
+  # define the default environment for aws
+  infrapolicies:
+    name: "test-infraPolicies"
+    description: "Allows to test infraPolicies at a given tfplan stored in a S3 bucket"
+    cloud_provider: aws
+    # Configuration of the CI pipeline
+    pipeline:
+      pipeline:
+        path: "infraPolicies/pipeline/pipeline.yml"
+      variables:
+        path: "infraPolicies/pipeline/variables.sample.yml"
+        destination: "($ project $)/infraPolicies/pipeline/variables-($ environment $).yml"

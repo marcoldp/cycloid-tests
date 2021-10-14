@@ -1,0 +1,85 @@
+---
+aws-ec2:
+  pipeline:
+    Terraform:
+      - name: "AWS access key"
+        description: "Amazon AWS access key for Terraform."
+        key: aws_access_key
+        widget: cy_cred
+        type: string
+        default: "((aws.access_key))"
+      - name: "AWS secret key"
+        description: "Amazon AWS secret key for Terraform."
+        key: aws_secret_key
+        widget: cy_cred
+        type: string
+        default: "((aws.secret_key))"
+      - name: "Amazon AWS region"
+        description: "Amazon AWS region to use for Terraform."
+        key: aws_default_region
+        widget: auto_complete
+        type: string
+        values: ["eu-north-1","ap-south-1","eu-west-3","eu-west-2","eu-west-1","ap-northeast-2","ap-northeast-1","sa-east-1","ca-central-1","ap-southeast-1","ap-southeast-2","eu-central-1","us-east-1","us-east-2","us-west-1","us-west-2"]
+        default: eu-west-1
+      - name: "Terraform storage bucket"
+        description: "AWS S3 bucket name to store terraform remote state file."
+        key: terraform_storage_bucket_name
+        widget: simple_text
+        type: string
+        default: ($ organization_canonical $)-terraform-remote-state
+        required: true
+      - name: "Test project's env"
+        description: "Name of the project's environment to use for the validation of infrapolicies."
+        key: env_s3
+        widget: simple_text
+        type: string
+        default: test-env
+        required: true
+      - name: "Test project"
+        description: "Name of the project to use for the validation of infrapolicies."
+        key: project_s3
+        widget: simple_text
+        type: string
+        default: test-project
+        required: true
+
+    Repos:
+      - name: "Config repository"
+        key: config_git_repository
+        type: string
+        widget: cy_crs
+        description: "Git repository URL containing the config of the stack."
+        default: "git@github.com:MyUser/config-ec2.git"
+        required: true
+      - name: "Config git key"
+        description: "SSH key pair to fetch the config Git repository."
+        key: config_git_private_key
+        type: string
+        widget: cy_cred
+        default: "((ssh_config.ssh_key))"
+        required: true
+      - name: "Config branch"
+        description: "Branch of the config Git repository."
+        key: config_git_branch
+        widget: cy_branch
+        type: string
+        description: "The branch used by the config repository"
+        source: config_git_repository
+        default: "master"
+        required: true
+
+    Concourse:
+      - name: "Terraform resource version"
+        key: terraform_version
+        type: string
+        widget: simple_text
+        description: "Terraform version to use for the terraform resource."
+        default: "1.0.6"
+        required: true
+      - name: "Cycloid resource version"
+        key: cycloid_resource_version
+        type: string
+        widget: simple_text
+        description: "cycloid resource version used to execute the infrapolicies validation."
+        default: "latest"
+        required: true
