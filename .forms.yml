@@ -1,5 +1,5 @@
 ---
-aws-ec2:
+infrapolicies:
   pipeline:
     Terraform:
       - name: "AWS access key"
