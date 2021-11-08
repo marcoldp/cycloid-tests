@@ -1,0 +1,19 @@
+#General git connection
+git_private_key: ((git_github.ssh_key))
+
+# API git
+git_api_uri: git@github.com:cycloidio/youdeploy-http-api.git
+git_api_branch: master
+
+# CLI git
+git_cli_uri: git@github.com:cycloidio/cycloid-cli.git
+git_cli_branch: mp_test
+# PR environment variables
+#       GITHUB_TOKEN: ((github_token))
+#       GITHUB_REPO_NAME: ((github_repo_name))
+#       GITHUB_BRANCH: ((git_cli_branch))
+#       # PR information - optinal
+#       # PR_TITLE="PR title"
+#       # PR_BODY="PR body"
+#       # a set of labels separated by comma
+#       PR_LABELS: "Status: Need review"

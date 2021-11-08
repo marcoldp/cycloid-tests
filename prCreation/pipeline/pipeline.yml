@@ -1,0 +1,139 @@
+groups:
+  - name: overview
+    jobs:
+      - bump-cli-with-be
+
+resources:
+  - name: git_api_tag
+    type: git
+    icon: git
+    source:
+      uri: ((git_api_uri))
+      branch: ((git_api_branch))
+      private_key: ((git_private_key))
+      fetch_tags: yes
+      tag_regex: 'v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+'
+
+  - name: git_cli
+    type: git
+    icon: git
+    source:
+      uri: ((git_cli_uri))
+      branch: ((git_cli_branch))
+      private_key: ((git_private_key))
+
+jobs:
+  - name: bump-cli-with-be
+    build_logs_to_retain: 10
+    plan:
+      - do:
+          - get: git_api_tag
+            trigger: true
+            #describe_ref_options:
+
+          - get: git_cli
+
+          - task: generate-swagger-client
+            config:
+              platform: linux
+              image_resource:
+                type: docker-image
+                source:
+                  repository: quay.io/goswagger/swagger
+                  tag: v0.21.0
+              run:
+                path: /cli_code
+                args:
+                  - "-exc"
+                  - |
+                    # generates client using latest swagger in API
+                    cp /api_code/swagger.yml .
+
+                    swagger generate client \
+                      --spec=swagger.yml \
+                      --default-produces="application/vnd.cycloid.io.v1+json" \
+                      --target=./client \
+                      --name=api \
+                      --tags=Cycloid \
+                      --tags="Organizations" \
+                      --tags="Organization API keys" \
+                      --tags="Organization Config Repositories" \
+                      --tags="Organization Credentials" \
+                      --tags="Organization External Backends" \
+                      --tags="Organization members" \
+                      --tags="Organization pipelines" \
+                      --tags="Organization pipelines jobs" \
+                      --tags="Organization pipelines jobs build" \
+                      --tags="Organization projects" \
+                      --tags="Organization Roles" \
+                      --tags="Organization Service Catalog Sources" \
+                      --tags="Organization workers" \
+                      --tags="Organization members" \
+                      --tags="Organization Invitations" \
+                      --tags="Organization Forms" \
+                      --tags="Organization kpis" \
+                      --tags="Organization Infrastructure Policies" \
+                      --tags="Organization Children" \
+                      --tags="Service catalogs" \
+                      --tags="User" \
+                      --tags="Cost Estimation"
+
+                    # change the client version to match the api tag release
+                    export SWAGGER_VERSION=$(cd api_code && git describe) 
+                    echo ${SWAGGER_VERSION} > client/version 
+
+                    git add client
+                    git commit -m 'Bump swagger client to version $$SWAGGER_VERSION'
+                    rm swagger.yml
+                    sdsdfsdf
+
+                    # if doesnt work try with push
+              params:
+                GOPATH: "/go"
+              #   DOCKER_IMAGE: alpine:3.11
+              #   ENV: ((env))
+              #   GITHUB_REPO: ((github_repo_name))
+              #   PIPELINE_BRANCH: ((git_cli_branch))
+              inputs:
+                - name: git_api_tag
+                  path: api_code
+                - name: git_cli
+                  path: cli_code
+
+              outputs:
+                - name: cli_with_commit
+                  path: cli_code
+
+          # - task: create-pr
+          #   config:
+          #     platform: linux
+          #     image_resource:
+          #       type: docker-image
+          #       source:
+          #         repository: marcoldp/gh-cli-create-pr
+          #         tag: 1.0.3
+          #     run:
+          #       path: /api_code
+          #       args:
+          #         - "-exc"
+          #         - |
+          #           # creates PR using commit data
+          #           gh pr create --fill --label ${PR_LABELS}
+          #           # if pass title and body
+          #           #gh pr create --title ${PR_TITLE}  --body ${PR_BODY} --label ${PR_LABELS}
+
+          #     params:
+          #       GITHUB_TOKEN: ((github_token))
+          #       GITHUB_REPO_NAME: cycloidio/cli
+          #       GITHUB_BRANCH: develop
+          #       # PR information - optinal
+          #       # PR_TITLE="PR title"
+          #       # PR_BODY="PR body"
+          #       # a set of labels separated by comma
+          #       PR_LABELS: "Status: Need review"
+          #     inputs:
+          #       - name: cli_with_commit
+          #     outputs:
+          #       - name: builded
+          #         path: builded
+          #       - name: extracted_version

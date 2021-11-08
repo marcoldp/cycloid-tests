@@ -19,7 +19,25 @@ infrapolicies:
         key: aws_default_region
         widget: auto_complete
         type: string
-        values: ["eu-north-1","ap-south-1","eu-west-3","eu-west-2","eu-west-1","ap-northeast-2","ap-northeast-1","sa-east-1","ca-central-1","ap-southeast-1","ap-southeast-2","eu-central-1","us-east-1","us-east-2","us-west-1","us-west-2"]
+        values:
+          [
+            "eu-north-1",
+            "ap-south-1",
+            "eu-west-3",
+            "eu-west-2",
+            "eu-west-1",
+            "ap-northeast-2",
+            "ap-northeast-1",
+            "sa-east-1",
+            "ca-central-1",
+            "ap-southeast-1",
+            "ap-southeast-2",
+            "eu-central-1",
+            "us-east-1",
+            "us-east-2",
+            "us-west-1",
+            "us-west-2",
+          ]
         default: eu-west-1
       - name: "Terraform storage bucket"
         description: "AWS S3 bucket name to store terraform remote state file."
@@ -63,7 +81,6 @@ infrapolicies:
         key: config_git_branch
         widget: cy_branch
         type: string
-        description: "The branch used by the config repository"
         source: config_git_repository
         default: "master"
         required: true
@@ -82,4 +99,38 @@ infrapolicies:
         widget: cy_cred
         type: string
         default: "((custom_api-key-infrapolicies-test.key))"
-        
+
+prCreation:
+  pipeline:
+    general-config:
+      - name: "GIT private key"
+        description: "GIT private key used to clone the CLI"
+        key: git_private_key
+        widget: cy_cred
+        type: string
+        default: "((git_github.ssh_key))"
+
+    git-cli:
+      - name: "CLI uri"
+        description: "CLI git uri"
+        key: git_cli_uri
+        widget: simple_text
+        type: string
+        default: "git@github.com:cycloidio/cycloid-cli.git"
+      - name: "CLI branch"
+        description: "CLI git branch"
+        key: git_cli_branch
+        widget: simple_text
+        type: string
+        default: "mp_test"
+
+#General git connection
+git_private_key: ((git_github.ssh_key))
+
+# API git
+git_api_uri: git@github.com:cycloidio/youdeploy-http-api.git
+git_api_branch: master
+
+# CLI git
+git_cli_uri: git@github.com:cycloidio/cycloid-cli.git
+git_cli_branch: mp_test

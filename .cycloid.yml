@@ -26,3 +26,15 @@ config:
       variables:
         path: "infraPolicies/pipeline/variables.sample.yml"
         destination: "($ project $)/infraPolicies/pipeline/variables-($ environment $).yml"
+
+  prCreation:
+    name: "test-cli-PR-creation"
+    description: "Allows to test automatic bumpo CLI with api"
+    cloud_provider: aws
+    # Configuration of the CI pipeline
+    pipeline:
+      pipeline:
+        path: "prCreation/pipeline/pipeline.yml"
+      variables:
+        path: "prCreation/pipeline/variables.sample.yml"
+        destination: "($ project $)/prCreation/pipeline/variables-($ environment $).yml"
