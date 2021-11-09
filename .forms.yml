@@ -100,7 +100,7 @@ infrapolicies:
         type: string
         default: "((custom_api-key-infrapolicies-test.key))"
 
-prCreation:
+prcreation:
   pipeline:
     general-config:
       - name: "GIT private key"
