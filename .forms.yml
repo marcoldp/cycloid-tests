@@ -123,14 +123,3 @@ prCreation:
         widget: simple_text
         type: string
         default: "mp_test"
-
-#General git connection
-git_private_key: ((git_github.ssh_key))
-
-# API git
-git_api_uri: git@github.com:cycloidio/youdeploy-http-api.git
-git_api_branch: master
-
-# CLI git
-git_cli_uri: git@github.com:cycloidio/cycloid-cli.git
-git_cli_branch: mp_test
