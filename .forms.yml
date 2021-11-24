@@ -99,22 +99,3 @@ infrapolicies:
         widget: cy_cred
         type: string
         default: "((custom_api-key-infrapolicies-test.key))"
-
-prcreation:
-  pipeline:
-    git:
-      - name: "CLI uri"
-        description: "CLI git uri"
-        key: git_cli_uri
-        widget: simple_text
-        type: string
-        default: "git@github.com:cycloidio/cycloid-cli.git"
-      - name: "CLI branch"
-        description: "CLI git branch"
-        key: git_cli_branch
-        widget: simple_text
-        type: string
-        default: "mp_test"
-      - name: "CLI github repo name"
-        description: "CLI github repository name"
-        key: github_repo_name
