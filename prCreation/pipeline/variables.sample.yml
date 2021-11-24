@@ -18,4 +18,4 @@ github_repo_name: cycloid-cli
 github_token: ((github_access_token.data))
 
 # Slack/Zulip resource
-slack_webhook: ((custom_marco-webhook.url))&topic=test
+slack_webhook: ((custom_marco-webhook.url))
