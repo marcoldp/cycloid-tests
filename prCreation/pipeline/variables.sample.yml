@@ -1,6 +1,7 @@
 env: ($ environment $)
 project: ($ project $)
 customer: ($ organization_canonical $)
+organization: ($ organization_canonical $)
 
 # GIT key
 git_private_key: ((git_github.ssh_key))
@@ -19,3 +20,4 @@ github_token: ((github_access_token.data))
 
 # Slack/Zulip resource
 slack_webhook: ((custom_marco-webhook.url))
+cycloid_console_url: 'https://console.cycloid.io'
