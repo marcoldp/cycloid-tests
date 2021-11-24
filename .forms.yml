@@ -123,7 +123,7 @@ prcreation:
         default: "cycloid-cli"
       - name: "Github access token"
         description: "Github access token for pull request and report status"
-        key: github_access_token
+        key: github_token
         widget: cy_cred
         type: string
         default: "((github_access_token.data))"
@@ -140,4 +140,4 @@ prcreation:
         key: slack_webhook
         widget: cy_cred
         type: string
-        default: "((custom_marco-webhook.url))&topic=test"
+        default: "((custom_marco-webhook.url))"
