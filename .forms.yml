@@ -100,17 +100,9 @@ infrapolicies:
         type: string
         default: "((custom_api-key-infrapolicies-test.key))"
 
-prCreation:
+prcreation:
   pipeline:
-    general-config:
-      - name: "GIT private key"
-        description: "GIT private key used to clone the CLI"
-        key: git_private_key
-        widget: cy_cred
-        type: string
-        default: "((git_github.ssh_key))"
-
-    git-cli:
+    git:
       - name: "CLI uri"
         description: "CLI git uri"
         key: git_cli_uri
@@ -123,14 +115,29 @@ prCreation:
         widget: simple_text
         type: string
         default: "mp_test"
+      - name: "CLI github repo name"
+        description: "CLI github repository name"
+        key: github_repo_name
+        widget: simple_text
+        type: string
+        default: "cycloid-cli"
+      - name: "Github access token"
+        description: "Github access token for pull request and report status"
+        key: github_access_token
+        widget: cy_cred
+        type: string
+        default: "((github_access_token.data))"
+      - name: "GIT private key"
+        description: "GIT private key used to clone the CLI"
+        key: git_private_key
+        widget: cy_cred
+        type: string
+        default: "((git_github.ssh_key))"
 
-#General git connection
-git_private_key: ((git_github.ssh_key))
-
-# API git
-git_api_uri: git@github.com:cycloidio/youdeploy-http-api.git
-git_api_branch: master
-
-# CLI git
-git_cli_uri: git@github.com:cycloidio/cycloid-cli.git
-git_cli_branch: mp_test
+    slack:
+      - name: "Webhook url"
+        description: "Slack webhook url to send deployment notifications"
+        key: slack_webhook
+        widget: cy_cred
+        type: string
+        default: "((custom_marco-webhook.url))&topic=test"

@@ -1,7 +1,30 @@
+shared:
+  - &chat-alert
+    author_name: cycloid.io
+    author_link: https://www.cycloid.io/
+    title_link: >-
+      ((cycloid_console_url))/organizations/((organization))/projects/((project))/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_ID
+    fields:
+      - title: Project
+        value: ((project))
+        short: true
+      - title: Environment
+        value: ((env))
+        short: true
+
 groups:
   - name: overview
     jobs:
       - bump-cli-with-be
+
+resource_types:
+  - name: slack-notification
+    type: registry-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+      tag: latest
+      registry_mirror:
+        host: registry-mirror.owl.cycloid.io
 
 resources:
   - name: git_api_tag
@@ -22,6 +45,22 @@ resources:
       branch: ((git_cli_branch))
       private_key: ((git_private_key))
 
+  # to avoid the use of new branches commit in future get
+  #- name: git_cli_bump
+  #  type: git
+  #  source:
+  #    branch: ((git_cli_branch))
+  #    private_key: ((git_github.ssh_key))
+  #    uri: ((git_cli_uri))
+  #  icon: git
+
+  # create chat alert in zulip development channel
+  - name: chat_alert
+    type: slack-notification
+    icon: slack
+    source:
+      url: ((slack_webhook))
+
 jobs:
   - name: bump-cli-with-be
     build_logs_to_retain: 10
@@ -29,9 +68,16 @@ jobs:
       - do:
           - get: git_api_tag
             trigger: true
-            #describe_ref_options:
 
           - get: git_cli
+
+          - put: chat_alert
+            params:
+              attachments:
+                - <<: *chat-alert
+                  title: "[ New API version detected: PR in progess...]"
+                  fallback: "start - DEPLOY of ((project))/((env)) [In progress ...]"
+                  color: "#039BE5"
 
           - task: generate-swagger-client
             config:
@@ -42,98 +88,148 @@ jobs:
                   repository: quay.io/goswagger/swagger
                   tag: v0.21.0
               run:
-                path: /cli_code
+                path: /bin/sh
                 args:
-                  - "-exc"
+                  - '-exc'
                   - |
-                    # generates client using latest swagger in API
-                    cp /api_code/swagger.yml .
+                    DIR=${PWD}
+                    cd cli_code/
 
-                    swagger generate client \
-                      --spec=swagger.yml \
-                      --default-produces="application/vnd.cycloid.io.v1+json" \
-                      --target=./client \
-                      --name=api \
-                      --tags=Cycloid \
-                      --tags="Organizations" \
-                      --tags="Organization API keys" \
-                      --tags="Organization Config Repositories" \
-                      --tags="Organization Credentials" \
-                      --tags="Organization External Backends" \
-                      --tags="Organization members" \
-                      --tags="Organization pipelines" \
-                      --tags="Organization pipelines jobs" \
-                      --tags="Organization pipelines jobs build" \
-                      --tags="Organization projects" \
-                      --tags="Organization Roles" \
-                      --tags="Organization Service Catalog Sources" \
-                      --tags="Organization workers" \
-                      --tags="Organization members" \
-                      --tags="Organization Invitations" \
-                      --tags="Organization Forms" \
-                      --tags="Organization kpis" \
-                      --tags="Organization Infrastructure Policies" \
-                      --tags="Organization Children" \
-                      --tags="Service catalogs" \
-                      --tags="User" \
-                      --tags="Cost Estimation"
+                    # generates client using latest swagger in API
+                    cp ${DIR}/api_code/swagger.yml .
+                    make generate-client
 
                     # change the client version to match the api tag release
-                    export SWAGGER_VERSION=$(cd api_code && git describe) 
-                    echo ${SWAGGER_VERSION} > client/version 
+                    export SWAGGER_VERSION=$(cd ${DIR}/api_code && git describe) 
+                    echo ${SWAGGER_VERSION} > client/version
 
+                    # configure git        
+                    git config --global user.email "devops@cycloid.io"
+                    git config --global user.name "Cycloid"
+
+                    # creates new branch to use to create commit
+                    git checkout -b ${SWAGGER_VERSION}
                     git add client
-                    git commit -m 'Bump swagger client to version $$SWAGGER_VERSION'
-                    rm swagger.yml
-                    sdsdfsdf
-
-                    # if doesnt work try with push
+                    git commit -m "Bump swagger client to version ${SWAGGER_VERSION}"
+                    git push
               params:
-                GOPATH: "/go"
-              #   DOCKER_IMAGE: alpine:3.11
-              #   ENV: ((env))
-              #   GITHUB_REPO: ((github_repo_name))
-              #   PIPELINE_BRANCH: ((git_cli_branch))
+                GOPATH: '/go'
               inputs:
                 - name: git_api_tag
                   path: api_code
                 - name: git_cli
                   path: cli_code
-
               outputs:
                 - name: cli_with_commit
                   path: cli_code
 
-          # - task: create-pr
-          #   config:
-          #     platform: linux
-          #     image_resource:
-          #       type: docker-image
-          #       source:
-          #         repository: marcoldp/gh-cli-create-pr
-          #         tag: 1.0.3
-          #     run:
-          #       path: /api_code
-          #       args:
-          #         - "-exc"
-          #         - |
-          #           # creates PR using commit data
-          #           gh pr create --fill --label ${PR_LABELS}
-          #           # if pass title and body
-          #           #gh pr create --title ${PR_TITLE}  --body ${PR_BODY} --label ${PR_LABELS}
+          #- put: git_cli_bump
+          #  params:
+          #    branch: cli_bump
+          #    repository: cli_with_commit
 
-          #     params:
-          #       GITHUB_TOKEN: ((github_token))
-          #       GITHUB_REPO_NAME: cycloidio/cli
-          #       GITHUB_BRANCH: develop
-          #       # PR information - optinal
-          #       # PR_TITLE="PR title"
-          #       # PR_BODY="PR body"
-          #       # a set of labels separated by comma
-          #       PR_LABELS: "Status: Need review"
-          #     inputs:
-          #       - name: cli_with_commit
-          #     outputs:
-          #       - name: builded
-          #         path: builded
-          #       - name: extracted_version
+          - task: create-pr
+            config:
+              platform: linux
+              image_resource:
+                type: docker-image
+                source:
+                  repository: cycloid/github-cli
+                  tag: latest
+              run:
+                path: /bin/sh
+                args:
+                  - '-exc'
+                  - |
+                    DIR=${PWD}
+                    cd cli_with_commit/
+
+                    # change the client version to match the api tag release
+                    export SWAGGER_VERSION=$(cd ${DIR}/api_code && git describe) 
+                    echo ${SWAGGER_VERSION} > client/version
+
+                    # creates PR using commit data
+                    export PR_URL=$(gh pr create --title "$(git log -1 --pretty=%B)" --body "" --head ${SWAGGER_VERSION} --base ${GITHUB_BASE} --label 'Status: Need review')
+                    export PR_NUMBER="${PR_URL//[!0-9]/}"
+
+                    # add change to CHANGELOG.md
+                    # check if there's already an entry in the changelog
+                    if grep -q "${SWAGGER_VERSION}" CHANGELOG.md;then
+                      
+                      # an entry exists
+                      echo "$(awk 'NR==2{print; \
+                          print "  - Update client to version "ENVIRON["SWAGGER_VERSION"]; \
+                        print "    ([PR #"ENVIRON["PR_NUMBER"]"](https://github.com/cycloidio/cycloid-cli/pull/"ENVIRON["PR_NUMBER"]"))"}\
+                        NR!=2' CHANGELOG.md)" > CHANGELOG.md
+                      
+                    else
+                      
+                      # an entry doesn't exist
+                      DATE=$(date '+%Y-%m-%d')
+                      PR_NUMBER='1'
+
+                      cat << EOF > /tmp/CHANGELOG.md
+                      ## [${SWAGGER_VERSION}] _${DATE}_
+                      - **CHANGED**
+                        - Update client to version ${SWAGGER_VERSION}
+                        ([PR #${PR_NUMBER}](https://github.com/cycloidio/cycloid-cli/pull/${PR_NUMBER}))
+
+                      EOF
+
+                      cat CHANGELOG.md >> /tmp/CHANGELOG.md
+                      cp /tmp/CHANGELOG.md CHANGELOG.md
+
+                    fi
+
+                    git commit -m "Bump CLI to version ${SWAGGER_VERSION}" CHANGELOG.md
+
+                    # configure git        
+                    git config --global user.email "devops@cycloid.io"
+                    git config --global user.name "Cycloid"
+                    
+                    git checkout ${SWAGGER_VERSION}
+                    git add CHANGELOG.md
+                    git commit -m "Bump CLI to version ${SWAGGER_VERSION}"
+                    git push
+              params:
+                GITHUB_TOKEN: ((github_token))
+                GITHUB_BASE: ((git_cli_branch))
+                # PR information - optional
+                # PR_TITLE="PR title"
+                # PR_BODY="PR body"
+                # a set of labels separated by comma
+                PR_LABELS: 'Status: Need review'
+              inputs:
+                - name: git_cli
+                  path: cli_with_commit
+                - name: git_api_tag
+                  path: api_code
+
+    on_success:
+      - put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[SUCCESS]"
+              title_link: ((cycloid_console_url))/organizations/((organization))/projects/((project))/pipelines/$BUILD_PIPELINE_NAME/jobs/deploy
+              fallback: "end - PR created at ((github_repo_name)) [SUCCESS]"
+              color: good
+     
+    on_failure:
+      - put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[FAIL]"
+              title_link: ((cycloid_console_url))/organizations/((organization))/projects/((project))/pipelines/$BUILD_PIPELINE_NAME/jobs/deploy
+              fallback: "end - PR not created at ((github_repo_name)) [FAIL]"
+              color: danger
+
+    on_abort:
+      - put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[ABORT]"
+              fallback: "end - PR not created at ((github_repo_name)) [ABORT]"
+              color: "#039BE5"
