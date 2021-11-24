@@ -118,26 +118,3 @@ prcreation:
       - name: "CLI github repo name"
         description: "CLI github repository name"
         key: github_repo_name
-        widget: simple_text
-        type: string
-        default: "cycloid-cli"
-      - name: "Github access token"
-        description: "Github access token for pull request and report status"
-        key: github_token
-        widget: cy_cred
-        type: string
-        default: "((github_access_token.data))"
-      - name: "GIT private key"
-        description: "GIT private key used to clone the CLI"
-        key: git_private_key
-        widget: cy_cred
-        type: string
-        default: "((git_github.ssh_key))"
-
-    slack:
-      - name: "Webhook url"
-        description: "Slack webhook url to send deployment notifications"
-        key: slack_webhook
-        widget: cy_cred
-        type: string
-        default: "((custom_marco-webhook.url))"
