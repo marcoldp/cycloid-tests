@@ -2,8 +2,7 @@ shared:
   - &chat-alert
     author_name: cycloid.io
     author_link: https://www.cycloid.io/
-    title_link: >-
-      ((cycloid_console_url))/organizations/((organization))/projects/((project))/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_ID
+    title_link: ((cycloid_console_url))/organizations/((organization))/projects/((project))/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_ID
     fields:
       - title: Project
         value: ((project))
