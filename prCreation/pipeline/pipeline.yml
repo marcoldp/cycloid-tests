@@ -133,7 +133,6 @@ jobs:
           attachments:
             - <<: *chat-alert
               title: "[SUCCESS]"
-              title_link: ((cycloid_console_url))/organizations/((organization))/projects/((project))/pipelines/$BUILD_PIPELINE_NAME/jobs/deploy
               fallback: "end - PR created at ((github_repo_name)) [SUCCESS]"
               color: good
      
@@ -143,7 +142,6 @@ jobs:
           attachments:
             - <<: *chat-alert
               title: "[FAIL]"
-              title_link: ((cycloid_console_url))/organizations/((organization))/projects/((project))/pipelines/$BUILD_PIPELINE_NAME/jobs/deploy
               fallback: "end - PR not created at ((github_repo_name)) [FAIL]"
               color: danger
 
