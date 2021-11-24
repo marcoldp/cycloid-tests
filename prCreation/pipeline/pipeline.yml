@@ -1,16 +1,3 @@
-shared:
-  - &chat-alert
-    author_name: cycloid.io
-    author_link: https://www.cycloid.io/
-    title_link: ((cycloid_console_url))/organizations/((organization))/projects/((project))/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_ID
-    fields:
-      - title: Project
-        value: ((project))
-        short: true
-      - title: Environment
-        value: ((env))
-        short: true
-
 groups:
   - name: overview
     jobs:
@@ -126,30 +113,3 @@ jobs:
           #  params:
           #    branch: cli_bump
           #    repository: cli_with_commit
-
-    on_success:
-      - put: chat_alert
-        params:
-          attachments:
-            - <<: *chat-alert
-              title: "[SUCCESS]"
-              fallback: "end - PR created at ((github_repo_name)) [SUCCESS]"
-              color: good
-     
-    on_failure:
-      - put: chat_alert
-        params:
-          attachments:
-            - <<: *chat-alert
-              title: "[FAIL]"
-              fallback: "end - PR not created at ((github_repo_name)) [FAIL]"
-              color: danger
-
-    on_abort:
-      - put: chat_alert
-        params:
-          attachments:
-            - <<: *chat-alert
-              title: "[ABORT]"
-              fallback: "end - PR not created at ((github_repo_name)) [ABORT]"
-              color: "#039BE5"
