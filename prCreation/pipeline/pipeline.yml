@@ -36,22 +36,21 @@ resources:
       fetch_tags: yes
       tag_regex: 'v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+'
 
-  - name: git_cli
+  - name: git_cli_write
     type: git
     icon: git
     source:
       uri: ((git_cli_uri))
       branch: ((git_cli_branch))
       private_key: ((git_private_key))
-
-  # to avoid the use of new branches commit in future get
-  #- name: git_cli_bump
-  #  type: git
-  #  source:
-  #    branch: ((git_cli_branch))
-  #    private_key: ((git_github.ssh_key))
-  #    uri: ((git_cli_uri))
-  #  icon: git
+      
+  - name: git_cli_read
+    type: git
+    icon: git
+    source:
+      uri: ((git_cli_uri))
+      branch: ((git_cli_branch))
+      private_key: ((git_private_key))
 
   # create chat alert in zulip development channel
   - name: chat_alert
@@ -68,7 +67,7 @@ jobs:
           - get: git_api_tag
             trigger: true
 
-          - get: git_cli
+          - get: git_cli_read
 
           - put: chat_alert
             params:
@@ -110,18 +109,24 @@ jobs:
                     git checkout -b ${SWAGGER_VERSION}
                     git add client
                     git commit -m "Bump swagger client to version ${SWAGGER_VERSION}"
-                    git push --set-upstream origin ${SWAGGER_VERSION}
               params:
                 GOPATH: '/go'
               inputs:
                 - name: git_api_tag
                   path: api_code
-                - name: git_cli
+                - name: git_cli_read
                   path: cli_code
               outputs:
                 - name: cli_with_commit
                   path: cli_code
+                - name: cli_version
+                  path: cli_code/client/version
                   
+          - put: git_cli_write
+            params:
+              repository: cli_with_commit
+              branch: cli_version
+              
           - task: create-pr
             config:
               platform: linux
