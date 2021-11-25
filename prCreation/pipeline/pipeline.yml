@@ -125,7 +125,7 @@ jobs:
           - put: git_cli_write
             params:
               repository: cli_with_commit
-              branch: cli_version
+              branch: ((.:cli_version))
               
           - task: create-pr
             config:
@@ -144,8 +144,8 @@ jobs:
                     cd cli_with_commit/
 
                     # change the client version to match the api tag release
-                    export SWAGGER_VERSION=$(cd ${DIR}/api_code && git describe) 
-                    echo ${SWAGGER_VERSION} > client/version
+                    #export SWAGGER_VERSION=$(cd ${DIR}/api_code && git describe) 
+                    #echo ${SWAGGER_VERSION} > client/version
 
                     # creates PR using commit data
                     export PR_URL=$(gh pr create --title "$(git log -1 --pretty=%B)" --body "" --head ${SWAGGER_VERSION} --base ${GITHUB_BASE} --label 'Status: Need review')
@@ -157,7 +157,7 @@ jobs:
                       
                       # an entry exists
                       echo "$(awk 'NR==2{print; \
-                          print "  - Update client to version "ENVIRON["SWAGGER_VERSION"]; \
+                        print "  - Update client to version "ENVIRON["SWAGGER_VERSION"]; \
                         print "    ([PR #"ENVIRON["PR_NUMBER"]"](https://github.com/cycloidio/cycloid-cli/pull/"ENVIRON["PR_NUMBER"]"))"}\
                         NR!=2' CHANGELOG.md)" > CHANGELOG.md
                       
@@ -180,15 +180,11 @@ jobs:
 
                     fi
 
-                    git commit -m "Bump CLI to version ${SWAGGER_VERSION}" CHANGELOG.md
-
                     # configure git        
                     git config --global user.email "devops@cycloid.io"
                     git config --global user.name "Cycloid"
-
-                    git add CHANGELOG.md
-                    git commit -m "Bump CLI to version ${SWAGGER_VERSION}"
-                    git push
+                    git checkout -b ${SWAGGER_VERSION}
+                    git commit -m "Changelog: Add entry for new version ${SWAGGER_VERSION}" CHANGELOG.md
               params:
                 GITHUB_TOKEN: ((github_token))
                 GITHUB_BASE: ((git_cli_branch))
@@ -197,12 +193,19 @@ jobs:
                 # PR_BODY="PR body"
                 # a set of labels separated by comma
                 PR_LABELS: 'Status: Need review'
+                SWAGGER_VERSION: ((.:cli_version))
               inputs:
                 - name: git_cli
                   path: cli_with_commit
-                - name: git_api_tag
-                  path: api_code                
+              outputs:
+                - name: cli_with_commit
+                  path: cli_code
                   
+          - put: git_cli_write
+            params:
+              repository: cli_with_commit
+              branch: ((.:cli_version))
+              
               on_success:
                 try:
                   put: chat_alert
