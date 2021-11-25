@@ -157,18 +157,18 @@ jobs:
                     DATE=$(date '+%Y-%m-%d')
 
                     # check if there's already an entry in the changelog
-                    if grep -q "${VERSION}" CHANGELOG.md;then
+                    if grep -q "${SWAGGER_VERSION}" CHANGELOG.md;then
                     # an entry exists
                     echo "$(awk 'NR==2{print; \
-                      print "  - Update client to version "ENVIRON["VERSION"]; \
+                      print "  - Update client to version "ENVIRON["SWAGGER_VERSION"]; \
                       print "    ([PR #"ENVIRON["PR_NUMBER"]"](https://github.com/cycloidio/cycloid-cli/pull/"ENVIRON["PR_NUMBER"]"))"}\
                       NR!=2' CHANGELOG.md)" > CHANGELOG.md
 
                     else
                     cat << EOF > /tmp/CHANGELOG.md
-                    ## [${VERSION}] _${DATE}_
+                    ## [${SWAGGER_VERSION}] _${DATE}_
                     - **CHANGED**
-                      - Update client to version ${VERSION}
+                      - Update client to version ${SWAGGER_VERSION}
                       ([PR #${PR_NUMBER}](https://github.com/cycloidio/cycloid-cli/pull/${PR_NUMBER}))
 
                     EOF
