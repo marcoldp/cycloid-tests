@@ -100,8 +100,6 @@ jobs:
                     # change the client version to match the api tag release
                     export SWAGGER_VERSION=$(cd ${DIR}/api_code && git describe) 
                     echo ${SWAGGER_VERSION} > client/version
-                    # Required otherwise we can't delete the folder
-                    echo ${SWAGGER_VERSION} > ${PWD}/version
                     
                     # configure git        
                     git config --global user.email "devops@cycloid.io"
@@ -121,9 +119,9 @@ jobs:
               outputs:
                 - name: cli_with_commit
                   path: cli_code
-                - name: cli_version
-                  path: version
-                  
+          - load_var: cli_version
+            file: cli_with_commit/client/version
+            
           - put: git_cli_write
             params:
               repository: cli_with_commit
