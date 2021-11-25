@@ -57,7 +57,7 @@ resources:
     type: slack-notification
     icon: slack
     source:
-      url: ((slack_webhook))
+      url: ((slack_webhook))&topic=test
 
 jobs:
   - name: bump-cli-with-be
@@ -153,37 +153,33 @@ jobs:
 
                     # add change to CHANGELOG.md
                     # check if there's already an entry in the changelog
-                    if grep -q "${SWAGGER_VERSION}" CHANGELOG.md;then
-                      
-                      # an entry exists
-                      echo "$(awk 'NR==2{print; \
-                        print "  - Update client to version "ENVIRON["SWAGGER_VERSION"]; \
-                        print "    ([PR #"ENVIRON["PR_NUMBER"]"](https://github.com/cycloidio/cycloid-cli/pull/"ENVIRON["PR_NUMBER"]"))"}\
-                        NR!=2' CHANGELOG.md)" > CHANGELOG.md
-                      
+
+                    DATE=$(date '+%Y-%m-%d')
+
+                    # check if there's already an entry in the changelog
+                    if grep -q "${VERSION}" CHANGELOG.md;then
+                    # an entry exists
+                    echo "$(awk 'NR==2{print; \
+                      print "  - Update client to version "ENVIRON["VERSION"]; \
+                      print "    ([PR #"ENVIRON["PR_NUMBER"]"](https://github.com/cycloidio/cycloid-cli/pull/"ENVIRON["PR_NUMBER"]"))"}\
+                      NR!=2' CHANGELOG.md)" > CHANGELOG.md
+
                     else
-                      
-                      # an entry doesn't exist
-                      DATE=$(date '+%Y-%m-%d')
-                      PR_NUMBER='1'
+                    cat << EOF > /tmp/CHANGELOG.md
+                    ## [${VERSION}] _${DATE}_
+                    - **CHANGED**
+                      - Update client to version ${VERSION}
+                      ([PR #${PR_NUMBER}](https://github.com/cycloidio/cycloid-cli/pull/${PR_NUMBER}))
 
-                      cat << EOF > /tmp/CHANGELOG.md
-                      ## [${SWAGGER_VERSION}] _${DATE}_
-                      - **CHANGED**
-                        - Update client to version ${SWAGGER_VERSION}
-                        ([PR #${PR_NUMBER}](https://github.com/cycloidio/cycloid-cli/pull/${PR_NUMBER}))
-
-                      EOF
-
-                      cat CHANGELOG.md >> /tmp/CHANGELOG.md
-                      cp /tmp/CHANGELOG.md CHANGELOG.md
-
+                    EOF
+                    cat CHANGELOG.md >> /tmp/CHANGELOG.md
+                    cp /tmp/CHANGELOG.md CHANGELOG.md
                     fi
-
+                    
                     # configure git        
                     git config --global user.email "devops@cycloid.io"
                     git config --global user.name "Cycloid"
-                    git checkout -b ${SWAGGER_VERSION}
+                    git checkout ${SWAGGER_VERSION}
                     git commit -m "Changelog: Add entry for new version ${SWAGGER_VERSION}" CHANGELOG.md
               params:
                 GITHUB_TOKEN: ((github_token))
@@ -195,7 +191,7 @@ jobs:
                 PR_LABELS: 'Status: Need review'
                 SWAGGER_VERSION: ((.:cli_version))
               inputs:
-                - name: git_cli_read
+                - name: git_cli_write
                   path: cli_with_commit
               outputs:
                 - name: cli_with_commit
