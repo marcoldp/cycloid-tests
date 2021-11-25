@@ -110,7 +110,7 @@ jobs:
                     git checkout -b ${SWAGGER_VERSION}
                     git add client
                     git commit -m "Bump swagger client to version ${SWAGGER_VERSION}"
-                    git push
+                    git push -u origin head
               params:
                 GOPATH: '/go'
               inputs:
@@ -121,6 +121,33 @@ jobs:
               outputs:
                 - name: cli_with_commit
                   path: cli_code
+                  
+    on_success:
+      - put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[SUCCESS]"
+              fallback: "end - PR created at ((github_repo_name)) [SUCCESS]"
+              color: good
+     
+    on_failure:
+      - put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[FAIL]"
+              fallback: "end - PR not created at ((github_repo_name)) [FAIL]"
+              color: danger
+
+    on_abort:
+      - put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[ABORT]"
+              fallback: "end - PR not created at ((github_repo_name)) [ABORT]"
+              color: "#039BE5"
 
           #- put: git_cli_bump
           #  params:
