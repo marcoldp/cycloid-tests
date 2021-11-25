@@ -110,7 +110,7 @@ jobs:
                     git checkout -b ${SWAGGER_VERSION}
                     git add client
                     git commit -m "Bump swagger client to version ${SWAGGER_VERSION}"
-                    git push -u origin head
+                    git push --set-upstream origin ${SWAGGER_VERSION}
               params:
                 GOPATH: '/go'
               inputs:
