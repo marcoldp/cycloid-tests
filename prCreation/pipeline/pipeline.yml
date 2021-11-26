@@ -201,32 +201,29 @@ jobs:
               repository: cli_with_commit
               branch: ((.:cli_version))
               
-              on_success:
-                try:
-                  put: chat_alert
-                  params:
-                    attachments:
-                      - <<: *chat-alert
-                        title: "[SUCCESS]"
-                        fallback: "end - PR created at ((github_repo_name)) [SUCCESS]"
-                        color: good
+    on_success:
+        put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[SUCCESS]"
+              fallback: "end - PR created at ((github_repo_name)) [SUCCESS]"
+              color: good
 
-              on_failure:
-                try:
-                  put: chat_alert
-                  params:
-                    attachments:
-                      - <<: *chat-alert
-                        title: "[FAIL]"
-                        fallback: "end - PR not created at ((github_repo_name)) [FAIL]"
-                        color: danger
+    on_failure:
+        put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[FAIL]"
+              fallback: "end - PR not created at ((github_repo_name)) [FAIL]"
+              color: danger
 
-              on_abort:
-                try:
-                  put: chat_alert
-                  params:
-                    attachments:
-                      - <<: *chat-alert
-                        title: "[ABORT]"
-                        fallback: "end - PR not created at ((github_repo_name)) [ABORT]"
-                        color: "#039BE5"
+    on_abort:
+        put: chat_alert
+        params:
+          attachments:
+            - <<: *chat-alert
+              title: "[ABORT]"
+              fallback: "end - PR not created at ((github_repo_name)) [ABORT]"
+              color: "#039BE5"
