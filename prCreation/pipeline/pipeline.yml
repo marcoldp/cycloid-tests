@@ -219,11 +219,11 @@ jobs:
               fallback: "end - PR not created at ((github_repo_name)) [FAIL]"
               color: danger
 
-    on_abort:
-        put: chat_alert
-        params:
-          attachments:
-            - <<: *chat-alert
-              title: "[ABORT]"
-              fallback: "end - PR not created at ((github_repo_name)) [ABORT]"
-              color: "#039BE5"
+#    on_abort:
+#        put: chat_alert
+#        params:
+#          attachments:
+#            - <<: *chat-alert
+#              title: "[ABORT]"
+#              fallback: "end - PR not created at ((github_repo_name)) [ABORT]"
+#              color: "#039BE5"
